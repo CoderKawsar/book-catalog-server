@@ -1,0 +1,242 @@
+[
+  {
+    "title": "The Great Gatsby",
+    "author": "F. Scott Fitzgerald",
+    "genre": "Classic",
+    "publicationDate": "1925-04-10",
+    "reviews": [
+      {
+        "rating": 4.5,
+        "comment": "A timeless masterpiece!"
+      },
+      {
+        "rating": 5,
+        "comment": "Beautifully written."
+      }
+    ]
+  },
+  {
+    "title": "To Kill a Mockingbird",
+    "author": "Harper Lee",
+    "genre": "Classic",
+    "publicationDate": "1960-07-11",
+    "reviews": [
+      {
+        "rating": 5,
+        "comment": "A must-read!"
+      },
+      {
+        "rating": 4,
+        "comment": "Powerful storytelling."
+      }
+    ]
+  },
+  {
+    "title": "1984",
+    "author": "George Orwell",
+    "genre": "Dystopian",
+    "publicationDate": "1949-06-08",
+    "reviews": [
+      {
+        "rating": 4.5,
+        "comment": "Thought-provoking and unsettling."
+      },
+      {
+        "rating": 5,
+        "comment": "A chilling portrayal of a totalitarian society."
+      }
+    ]
+  },
+  {
+    "title": "Pride and Prejudice",
+    "author": "Jane Austen",
+    "genre": "Classic",
+    "publicationDate": "1813-01-28",
+    "reviews": [
+      {
+        "rating": 4,
+        "comment": "A delightful romance novel."
+      },
+      {
+        "rating": 4.5,
+        "comment": "Captivating characters and witty dialogue."
+      }
+    ]
+  },
+  {
+    "title": "The Hobbit",
+    "author": "J.R.R. Tolkien",
+    "genre": "Fantasy",
+    "publicationDate": "1937-09-21",
+    "reviews": [
+      {
+        "rating": 5,
+        "comment": "An enchanting adventure."
+      },
+      {
+        "rating": 4.5,
+        "comment": "Immersive world-building."
+      }
+    ]
+  },
+  {
+    "title": "Harry Potter and the Sorcerer's Stone",
+    "author": "J.K. Rowling",
+    "genre": "Fantasy",
+    "publicationDate": "1997-06-26",
+    "reviews": [
+      {
+        "rating": 5,
+        "comment": "The start of an epic series."
+      },
+      {
+        "rating": 4,
+        "comment": "Magical and captivating."
+      }
+    ]
+  },
+  {
+    "title": "The Catcher in the Rye",
+    "author": "J.D. Salinger",
+    "genre": "Classic",
+    "publicationDate": "1951-07-16",
+    "reviews": [
+      {
+        "rating": 4,
+        "comment": "An iconic coming-of-age story."
+      },
+      {
+        "rating": 3.5,
+        "comment": "Provocative and thought-provoking."
+      }
+    ]
+  },
+  {
+    "title": "To the Lighthouse",
+    "author": "Virginia Woolf",
+    "genre": "Modernist",
+    "publicationDate": "1927-05-05",
+    "reviews": [
+      {
+        "rating": 4.5,
+        "comment": "A lyrical exploration of consciousness."
+      },
+      {
+        "rating": 5,
+        "comment": "Beautiful prose and introspective storytelling."
+      }
+    ]
+  },
+  {
+    "title": "Moby-Dick",
+    "author": "Herman Melville",
+    "genre": "Classic",
+    "publicationDate": "1851-10-18",
+    "reviews": [
+      {
+        "rating": 4.5,
+        "comment": "An epic adventure on the high seas."
+      },
+      {
+        "rating": 4,
+        "comment": "Rich symbolism and memorable characters."
+      }
+    ]
+  },
+  {
+    "title": "Brave New World",
+    "author": "Aldous Huxley",
+    "genre": "Dystopian",
+    "publicationDate": "1932-01-01",
+    "reviews": [
+      {
+        "rating": 4,
+        "comment": "A futuristic and thought-provoking novel."
+      },
+      {
+        "rating": 4.5,
+        "comment": "Exploration of societal control and individual freedom."
+      }
+    ]
+  },
+  {
+    "title": "The Lord of the Rings",
+    "author": "J.R.R. Tolkien",
+    "genre": "Fantasy",
+    "publicationDate": "1954-07-29",
+    "reviews": [
+      {
+        "rating": 5,
+        "comment": "A monumental fantasy epic."
+      },
+      {
+        "rating": 5,
+        "comment": "Imaginative and captivating."
+      }
+    ]
+  },
+  {
+    "title": "The Alchemist",
+    "author": "Paulo Coelho",
+    "genre": "Fiction",
+    "publicationDate": "1988-06-01",
+    "reviews": [
+      {
+        "rating": 4.5,
+        "comment": "A philosophical and inspiring journey."
+      },
+      {
+        "rating": 4,
+        "comment": "Uplifting and motivational."
+      }
+    ]
+  },
+  {
+    "title": "Crime and Punishment",
+    "author": "Fyodor Dostoevsky",
+    "genre": "Classic",
+    "publicationDate": "1866-01-01",
+    "reviews": [
+      {
+        "rating": 4,
+        "comment": "An intense psychological exploration."
+      },
+      {
+        "rating": 4.5,
+        "comment": "Compelling narrative and deep character development."
+      }
+    ]
+  },
+  {
+    "title": "The Odyssey",
+    "author": "Homer",
+    "genre": "Epic",
+    "publicationDate": "8th century BCE",
+    "reviews": [
+      {
+        "rating": 4.5,
+        "comment": "An epic tale of adventure and heroism."
+      },
+      {
+        "rating": 5,
+        "comment": "Timeless and engaging."
+      }
+    ]
+  },
+  {
+    "title": "The Picture of Dorian Gray",
+    "author": "Oscar Wilde",
+    "genre": "Classic",
+    "publicationDate": "1890-07-01",
+    "reviews": [
+      {
+        "rating": 5,
+        "comment": "A haunting and decadent novel."
+      },
+      {
+        "rating": 4.5,
+        "comment": "Witty and thought-provoking."
+      }
+    ]
+  }
+]
