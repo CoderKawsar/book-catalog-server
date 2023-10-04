@@ -7,14 +7,11 @@ import sendResponse from "../../../shared/sendResponse";
 import { BookService } from "./book.service";
 import { IBook } from "./book.interfaces";
 import { bookFilterableFields } from "./book.constants";
-import { isAuthorizedUserToModifyBook } from "./book.utils";
 
 const createBook = catchAsync(async (req: Request, res: Response) => {
   const bookData = req.body;
 
-  const authenticatedUserId = req?.user?._id;
-
-  const result = await BookService.createBook(authenticatedUserId, bookData);
+  const result = await BookService.createBook(bookData);
 
   sendResponse<IBook>(res, {
     statusCode: httpStatus.OK,
@@ -25,10 +22,24 @@ const createBook = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllBooks = catchAsync(async (req: Request, res: Response) => {
+  const result = await BookService.getAllBooks();
+
+  sendResponse<IBook[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Books fetched successfully",
+    data: result,
+  });
+});
+
+const getAllFilteredBooks = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, bookFilterableFields);
   const paginationOptions = pick(req.query, paginationFields);
 
-  const result = await BookService.getAllBooks(filters, paginationOptions);
+  const result = await BookService.getAllFilteredBooks(
+    filters,
+    paginationOptions
+  );
 
   sendResponse<IBook[]>(res, {
     statusCode: httpStatus.OK,
@@ -56,9 +67,6 @@ const updateBook = catchAsync(
     const { id } = req.params;
     const updatedData = req.body;
 
-    // if authorized user email and adder email not matched, throw error
-    await isAuthorizedUserToModifyBook(req, id);
-
     const result = await BookService.updateBook(id, updatedData);
 
     sendResponse<IBook>(res, {
@@ -73,9 +81,6 @@ const updateBook = catchAsync(
 const deleteBook = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  // if authorized user email and adder email not matched, throw error
-  await isAuthorizedUserToModifyBook(req, id);
-
   const result = await BookService.deleteBook(id);
 
   sendResponse<IBook>(res, {
@@ -89,6 +94,7 @@ const deleteBook = catchAsync(async (req: Request, res: Response) => {
 export const BookController = {
   createBook,
   getAllBooks,
+  getAllFilteredBooks,
   getSingleBook,
   updateBook,
   deleteBook,

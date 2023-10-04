@@ -5,17 +5,20 @@ import { UserValidation } from "./user.validation";
 const router = express.Router();
 
 router.post(
-  "/login",
-  validateRequest(UserValidation.loginUserZodSchema),
-  UserController.loginUser
-);
-
-router.post("/refresh-token", UserController.refreshToken);
-
-router.post(
   "/signup",
   validateRequest(UserValidation.createUserZodSchema),
   UserController.createUser
+);
+
+router.get("/:email", UserController.getUserByEmail);
+
+router.patch("/add-book-to-wishlist", UserController.addBookToWishList);
+
+router.patch("/add-book-to-reading", UserController.addBookToReading);
+
+router.patch(
+  "/add-book-to-finished-reading",
+  UserController.addBookToFinishedReading
 );
 
 export const UserRoutes = router;

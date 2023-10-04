@@ -6,18 +6,19 @@ import { IBook, IBookFilters } from "./book.interfaces";
 import { Book } from "./book.model";
 import { bookSearchableFields } from "./book.constants";
 
-const createBook = async (
-  authenticatedUserId,
-  bookData: IBook
-): Promise<IBook | null> => {
+const createBook = async (bookData: IBook): Promise<IBook | null> => {
   const result = await Book.create({
     ...bookData,
-    addedBy: authenticatedUserId,
   });
   return result;
 };
 
-const getAllBooks = async (
+const getAllBooks = async (): Promise<IBook[]> => {
+  const result = await Book.find({}).sort({ createdAt: -1 });
+  return result;
+};
+
+const getAllFilteredBooks = async (
   filters: IBookFilters,
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<IBook[]>> => {
@@ -58,7 +59,10 @@ const getAllBooks = async (
     .sort(sortConditions)
     .skip(skip)
     .limit(limit);
-  const total = await Book.countDocuments();
+
+  const total = await Book.find(whereConditions)
+    .sort(sortConditions)
+    .countDocuments();
 
   return {
     meta: {
@@ -93,6 +97,7 @@ const deleteBook = async (id: string): Promise<IBook | null> => {
 export const BookService = {
   createBook,
   getAllBooks,
+  getAllFilteredBooks,
   getSingleBook,
   updateBook,
   deleteBook,

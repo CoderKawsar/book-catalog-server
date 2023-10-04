@@ -4,82 +4,85 @@ import httpStatus from "http-status";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import { UserService } from "./user.service";
-import config from "../../../config";
-import { IRefreshTokenResponse } from "./user.interface";
 
 const createUser: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const result = await UserService.createUser(req.body);
 
-    const { user, accessToken, refreshToken } = result;
-
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: config.env === "production",
-    });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: config.env === "production",
-    });
-
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: "user created successfully!",
-      data: {
-        user,
-        accessToken,
-      },
+      data: result,
     });
   }
 );
 
-const loginUser = catchAsync(async (req: Request, res: Response) => {
-  const result = await UserService.loginUser(req.body);
+const getUserByEmail: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const { email } = req.params;
+    const result = await UserService.getUserByEmail(email);
 
-  const { accessToken, refreshToken } = result;
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "User fetched successfully!",
+      data: result,
+    });
+  }
+);
 
-  res.cookie("accessToken", accessToken, {
-    httpOnly: true,
-    secure: config.env === "production",
-  });
+const addBookToWishList: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const { userEmail, bookId } = req.body;
+    const result = await UserService.addBookToWishList(userEmail, bookId);
 
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: config.env === "production",
-  });
+    console.log(result);
 
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: "User logged in successfully!",
-    data: { accessToken },
-  });
-});
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: result?.message || "Book added to wishlist!",
+      data: result,
+    });
+  }
+);
 
-const refreshToken = catchAsync(async (req: Request, res: Response) => {
-  const { refreshToken } = req.cookies;
+const addBookToReading: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const { userEmail, bookId } = req.body;
+    const result = await UserService.addBookToReading(userEmail, bookId);
 
-  const result = await UserService.refreshToken(refreshToken);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Book added to reading list!",
+      data: result,
+    });
+  }
+);
 
-  // set refresh token into cookie
-  const cookieOptions = {
-    secure: config.env === "production",
-    httpOnly: true,
-  };
-  res.cookie("refreshToken", refreshToken, cookieOptions);
+const addBookToFinishedReading: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const { userEmail, bookId } = req.body;
+    const result = await UserService.addBookToFinishedReading(
+      userEmail,
+      bookId
+    );
 
-  sendResponse<IRefreshTokenResponse>(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Token refreshed successfully!",
-    data: result,
-  });
-});
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Book added to finished reading list!",
+      data: result,
+    });
+  }
+);
 
 export const UserController = {
   createUser,
-  loginUser,
-  refreshToken,
+  getUserByEmail,
+  addBookToWishList,
+  addBookToReading,
+  addBookToFinishedReading,
 };

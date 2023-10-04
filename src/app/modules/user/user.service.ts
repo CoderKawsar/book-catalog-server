@@ -1,168 +1,171 @@
-import httpStatus from "http-status";
-import mongoose from "mongoose";
 import { IUser } from "./user.interface";
-import bcrypt from "bcrypt";
-import { JwtPayload, Secret } from "jsonwebtoken";
-import config from "../../../config";
-import ApiError from "../../../errors/ApiError";
-import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import { User } from "../user/user.model";
-import {
-  IChangePassword,
-  ILoginUser,
-  ILoginUserResponse,
-  IRefreshTokenResponse,
-} from "./user.interface";
+import ApiError from "../../../errors/ApiError";
+import httpStatus from "http-status";
 
-const createUser = async (userInput: IUser) => {
-  const result = await User.create(userInput);
-  const { password, ...user } = result.toObject();
-
-  // create json web token
-  const { _id, email: userEmail } = user;
-
-  const accessToken = jwtHelpers.createToken(
-    {
-      _id,
-      email: userEmail,
-    },
-    config.jwt.secret as Secret,
-    config.jwt.expiresIn as string
-  );
-
-  // create refresh web token
-  const refreshToken = jwtHelpers.createToken(
-    {
-      _id,
-      email: userEmail,
-    },
-    config.jwt.refresh_secret as Secret,
-    config.jwt.refresh_expiresIn as string
-  );
-
-  return { user, accessToken, refreshToken };
+/*===========================================================================
+Create User
+===========================================================================*/
+const createUser = async (payload: IUser) => {
+  const result = await User.create(payload);
+  return result;
 };
 
-const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
-  const { email, password } = payload;
+/*===========================================================================
+Get User By Email
+===========================================================================*/
+const getUserByEmail = async (email: string) => {
+  const user = await User.findOne({
+    email,
+  })
+    .populate("wishList")
+    .populate("booksReading")
+    .populate("finishedReading");
 
-  const user = await User.findOne({ email: email }).select("email password");
+  return user;
+};
+
+/*===========================================================================
+Add Book To Wish List
+===========================================================================*/
+const addBookToWishList = async (userEmail: string, bookId: string) => {
+  const user = await User.findOne({
+    email: userEmail,
+  });
 
   if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, "User does not exist");
-  }
-
-  const isPasswordMatched = await bcrypt.compare(
-    password,
-    user?.password as string
-  );
-
-  if (!isPasswordMatched) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, "Password is incorrect");
-  }
-
-  // create json web token
-  const { _id, email: userEmail } = user;
-
-  const accessToken = jwtHelpers.createToken(
-    {
-      _id,
-      email: userEmail,
-    },
-    config.jwt.secret as Secret,
-    config.jwt.expiresIn as string
-  );
-
-  // create refresh web token
-  const refreshToken = jwtHelpers.createToken(
-    {
-      _id,
-      email: userEmail,
-    },
-    config.jwt.refresh_secret as Secret,
-    config.jwt.refresh_expiresIn as string
-  );
-
-  return { accessToken, refreshToken };
-};
-
-const changePassword = async (
-  user: JwtPayload | null,
-  passwordData: IChangePassword
-): Promise<void> => {
-  const { oldPassword, newPassword } = passwordData;
-
-  // checking if the user exists anymore
-  const userC = new User();
-  const existedUser = await userC.isUserExists(user?.email);
-
-  if (!existedUser) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found!");
   }
 
-  // checking old password
-  const isPasswordMatched = await userC.isPasswordMatched(
-    oldPassword,
-    existedUser?.password as string
+  const alreadyExistsInWishlist = user.wishList?.find(
+    (book) => book.toString() === bookId
+  );
+  const alreadyExistsInReading = user.booksReading?.find(
+    (book) => book.toString() === bookId
   );
 
-  if (!isPasswordMatched) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, "Password is incorrect");
+  if (alreadyExistsInWishlist) {
+    return { message: "Already in your wishlist!" };
+  } else if (alreadyExistsInReading) {
+    return { message: "Currently reading this book!" };
+  } else {
+    const result = await User.updateOne(
+      { _id: user._id },
+      { $push: { wishList: bookId } }
+    );
+    if (result.acknowledged) {
+      const updatedUser = await User.findOne({ email: userEmail })
+        .populate("wishList")
+        .populate("booksReading")
+        .populate("finishedReading");
+
+      return updatedUser;
+    } else {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Error occured!");
+    }
   }
-
-  // hash password before saving
-  const newHashedPassword = await bcrypt.hash(
-    newPassword,
-    Number(config.bcrypt_salt_rounds)
-  );
-
-  // update password
-  const query = { email: user?.email };
-  const updatedData = {
-    password: newHashedPassword,
-  };
-  await User.findOneAndUpdate(query, updatedData);
 };
 
-const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
-  let verifiedToken: JwtPayload;
+/*===========================================================================
+Add Book To Reading List
+===========================================================================*/
+const addBookToReading = async (userEmail: string, bookId: string) => {
+  const user = await User.findOne({
+    email: userEmail,
+  });
 
-  try {
-    verifiedToken = jwtHelpers.verifyToken(
-      token,
-      config.jwt.refresh_secret as Secret
-    );
-  } catch (err) {
-    throw new ApiError(httpStatus.FORBIDDEN, "Invalid refresh token");
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found!");
   }
 
-  const { email } = verifiedToken;
-
-  // checking if the user exists anymore
-  const user = new User();
-  const isUserExist = await user.isUserExists(email);
-
-  if (!isUserExist) {
-    throw new ApiError(httpStatus.NOT_FOUND, "User does not exist!");
-  }
-
-  // generate new token
-  const newAccessToken = jwtHelpers.createToken(
-    {
-      email: isUserExist?.email,
-    },
-    config.jwt.refresh_secret as Secret,
-    config.jwt.refresh_expiresIn as string
+  // check if the book is already present in booksReading
+  const alreadyReading = user.booksReading?.find(
+    (book) => book.toString() === bookId
   );
 
-  return {
-    accessToken: newAccessToken,
-  };
+  // remove book from wishList if already there
+  user.wishList = user.wishList?.filter((book) => book.toString() !== bookId);
+
+  // remove book from finished reading if already there
+  user.wishList = user.finishedReading?.filter(
+    (book) => book.toString() !== bookId
+  );
+
+  if (alreadyReading) {
+    return { message: "Currently reading this book!" };
+  } else {
+    await user.save();
+
+    const result = await User.updateOne(
+      { _id: user._id },
+      { $push: { booksReading: bookId } }
+    );
+    if (result.acknowledged) {
+      const updatedUser = await User.findOne({ email: userEmail })
+        .populate("wishList")
+        .populate("booksReading")
+        .populate("finishedReading");
+
+      return updatedUser;
+    } else {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Error occured!");
+    }
+  }
+};
+
+/*===========================================================================
+Add Book To Finished Reading List
+===========================================================================*/
+const addBookToFinishedReading = async (userEmail: string, bookId: string) => {
+  const user = await User.findOne({
+    email: userEmail,
+  });
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found!");
+  }
+
+  // check if the book is already present in finished reading
+  const alreadyFinishedReading = user.finishedReading?.find(
+    (book) => book.toString() === bookId
+  );
+
+  // remove book from wishList if already there
+  user.wishList = user.wishList?.filter((book) => book.toString() !== bookId);
+
+  // remove book from reading list if already there
+  user.booksReading = user.booksReading?.filter(
+    (book) => book.toString() !== bookId
+  );
+
+  if (alreadyFinishedReading) {
+    await user.save();
+    return { message: "Already finished reading this book!" };
+  } else {
+    await user.save();
+
+    const result = await User.updateOne(
+      { _id: user._id },
+      { $push: { finishedReading: bookId } }
+    );
+
+    if (result.acknowledged) {
+      const updatedUser = await User.findOne({ email: userEmail })
+        .populate("wishList")
+        .populate("booksReading")
+        .populate("finishedReading");
+
+      return updatedUser;
+    } else {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Error occured!");
+    }
+  }
 };
 
 export const UserService = {
   createUser,
-  loginUser,
-  changePassword,
-  refreshToken,
+  getUserByEmail,
+  addBookToWishList,
+  addBookToReading,
+  addBookToFinishedReading,
 };

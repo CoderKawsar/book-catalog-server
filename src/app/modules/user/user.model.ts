@@ -1,30 +1,25 @@
-/* eslint-disable @typescript-eslint/no-this-alias */
-import bcrypt from "bcrypt";
-import { Schema, model } from "mongoose";
-import config from "../../../config";
-import { IUser, IUserMethods, UserModel } from "./user.interface";
+import { Model, Schema, model } from "mongoose";
+import { IUser } from "./user.interface";
+import { ObjectId } from "mongodb";
 
-const UserSchema = new Schema<IUser, UserModel, IUserMethods>(
+const UserSchema = new Schema<IUser>(
   {
-    name: {
-      firstName: {
-        type: String,
-        required: true,
-      },
-      lastName: {
-        type: String,
-        required: true,
-      },
-    },
     email: {
       type: String,
       required: true,
       unique: true,
     },
-    password: {
-      type: String,
-      required: true,
-      select: 0,
+    wishList: {
+      type: [{ type: ObjectId, ref: "Book" }],
+      required: false,
+    },
+    booksReading: {
+      type: [{ type: ObjectId, ref: "Book" }],
+      required: false,
+    },
+    finishedReading: {
+      type: [{ type: ObjectId, ref: "Book" }],
+      required: false,
     },
   },
   {
@@ -32,24 +27,4 @@ const UserSchema = new Schema<IUser, UserModel, IUserMethods>(
   }
 );
 
-// method to check if password matched
-UserSchema.methods.isPasswordMatched = async function (
-  password: string,
-  hashedPassword: string
-): Promise<boolean> {
-  return await bcrypt.compare(password, hashedPassword);
-};
-
-UserSchema.pre("save", async function (next) {
-  const user = this;
-
-  // hasing user password
-  user.password = await bcrypt.hash(
-    user.password,
-    Number(config.bcrypt_salt_rounds)
-  );
-
-  next();
-});
-
-export const User = model<IUser, UserModel>("User", UserSchema);
+export const User: Model<IUser> = model("User", UserSchema);
