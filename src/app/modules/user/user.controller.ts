@@ -4,6 +4,8 @@ import httpStatus from "http-status";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import { UserService } from "./user.service";
+import { IBook } from "../book/book.interfaces";
+import { IUser } from "./user.interface";
 
 const createUser: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
@@ -37,8 +39,6 @@ const addBookToWishList: RequestHandler = catchAsync(
     const { userEmail, bookId } = req.body;
     const result = await UserService.addBookToWishList(userEmail, bookId);
 
-    console.log(result);
-
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -56,7 +56,7 @@ const addBookToReading: RequestHandler = catchAsync(
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Book added to reading list!",
+      message: result?.message || "Book added to reading list!",
       data: result,
     });
   }
@@ -73,7 +73,7 @@ const addBookToFinishedReading: RequestHandler = catchAsync(
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Book added to finished reading list!",
+      message: result?.message || "Book added to finished reading list!",
       data: result,
     });
   }

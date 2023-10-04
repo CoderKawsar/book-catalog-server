@@ -45,21 +45,16 @@ const addBookToWishList = async (userEmail: string, bookId: string) => {
   );
 
   if (alreadyExistsInWishlist) {
-    return { message: "Already in your wishlist!" };
+    return { success: false, message: "Already in your wishlist!" };
   } else if (alreadyExistsInReading) {
-    return { message: "Currently reading this book!" };
+    return { success: false, message: "Currently reading this book!" };
   } else {
     const result = await User.updateOne(
       { _id: user._id },
       { $push: { wishList: bookId } }
     );
     if (result.acknowledged) {
-      const updatedUser = await User.findOne({ email: userEmail })
-        .populate("wishList")
-        .populate("booksReading")
-        .populate("finishedReading");
-
-      return updatedUser;
+      return { success: true, message: "Book added to wishlist!" };
     } else {
       throw new ApiError(httpStatus.BAD_REQUEST, "Error occured!");
     }
@@ -92,7 +87,7 @@ const addBookToReading = async (userEmail: string, bookId: string) => {
   );
 
   if (alreadyReading) {
-    return { message: "Currently reading this book!" };
+    return { success: false, message: "Currently reading this book!" };
   } else {
     await user.save();
 
@@ -101,12 +96,7 @@ const addBookToReading = async (userEmail: string, bookId: string) => {
       { $push: { booksReading: bookId } }
     );
     if (result.acknowledged) {
-      const updatedUser = await User.findOne({ email: userEmail })
-        .populate("wishList")
-        .populate("booksReading")
-        .populate("finishedReading");
-
-      return updatedUser;
+      return { success: true, message: "Book added to reading list!" };
     } else {
       throw new ApiError(httpStatus.BAD_REQUEST, "Error occured!");
     }
@@ -140,7 +130,7 @@ const addBookToFinishedReading = async (userEmail: string, bookId: string) => {
 
   if (alreadyFinishedReading) {
     await user.save();
-    return { message: "Already finished reading this book!" };
+    return { success: false, message: "Already finished reading this book!" };
   } else {
     await user.save();
 
@@ -150,12 +140,7 @@ const addBookToFinishedReading = async (userEmail: string, bookId: string) => {
     );
 
     if (result.acknowledged) {
-      const updatedUser = await User.findOne({ email: userEmail })
-        .populate("wishList")
-        .populate("booksReading")
-        .populate("finishedReading");
-
-      return updatedUser;
+      return { success: true, message: "Book added to finished reading list!" };
     } else {
       throw new ApiError(httpStatus.BAD_REQUEST, "Error occured!");
     }
