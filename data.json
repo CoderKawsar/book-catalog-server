@@ -4,6 +4,7 @@
     "author": "F. Scott Fitzgerald",
     "genre": "Classic",
     "publicationDate": "1925-04-10",
+    "addedBy": "a@b.com",
     "reviews": [
       {
         "rating": 4.5,
